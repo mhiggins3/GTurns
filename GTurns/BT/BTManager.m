@@ -46,9 +46,12 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
 }
 
 -(void)startScan{
-    NSArray *serviceList = [NSArray arrayWithObjects: [CBUUID UUIDWithString:GATT_SERVICE_UUID_STRING], nil];
-    //[self.centralManager scanForPeripheralsWithServices:serviceList options:nil];
-    [self.centralManager scanForPeripheralsWithServices:serviceList options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
+    
+    /* 
+     We need to do this since the sensor tag does not advertise
+     its services. This will force the tag to send us back everything its knows.
+    */
+    [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
 
 }
 
