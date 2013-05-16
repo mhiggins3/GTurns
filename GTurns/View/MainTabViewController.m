@@ -12,7 +12,7 @@
 
 @property (strong) BTManager *btManager;
 @property (strong) CLLocationManager *locationManager;
-
+@property float lastMph;
 @end
 
 @implementation MainTabViewController
@@ -36,6 +36,7 @@
     // NSLog(@"Location manager status %@", [CLLocationManager authorizationStatus]);
     self.btManager = [BTManager sharedInstance];
     self.btManager.delegate = self;
+    self.lastMph = 0.0;
     
 }
 
@@ -56,12 +57,13 @@
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     CLLocation *currentLocation = [locations objectAtIndex:locations.count - 1];
-    float mph = 0;
     if(currentLocation.speed > 0){
-        mph = (currentLocation.speed / 100) * 0.621371192237334;
+        self.lastMph = (currentLocation.speed * 3.6)/ 1.609344;
+        self.speedValueLable.textColor = [UIColor blackColor];
+    } else {
+        self.speedValueLable.textColor = [UIColor yellowColor];
     }
-    NSLog(@"Current speed: %f MPH", mph);
-    self.speedValueLable.text = [NSString stringWithFormat:@"%.2f MPH", mph];
+    self.speedValueLable.text = [NSString stringWithFormat:@"%.2f MPH", self.lastMph];
     
 }
 -(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
