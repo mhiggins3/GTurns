@@ -29,6 +29,7 @@
 		6C93BC3A174418690040F66B /* GTurnsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC39174418690040F66B /* GTurnsConst.m */; };
 		6C93BC3D174429F80040F66B /* ConfigTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3C174429F80040F66B /* ConfigTabViewController.m */; };
 		6C93BC40174549B50040F66B /* AccelerometerSensor.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3F174549B50040F66B /* AccelerometerSensor.m */; };
+		6C93BC421745714F0040F66B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C93BC411745714F0040F66B /* CoreLocation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		6C93BC3C174429F80040F66B /* ConfigTabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ConfigTabViewController.m; path = View/ConfigTabViewController.m; sourceTree = "<group>"; };
 		6C93BC3E174549B50040F66B /* AccelerometerSensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerSensor.h; sourceTree = "<group>"; };
 		6C93BC3F174549B50040F66B /* AccelerometerSensor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccelerometerSensor.m; sourceTree = "<group>"; };
+		6C93BC411745714F0040F66B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C93BC421745714F0040F66B /* CoreLocation.framework in Frameworks */,
 				6C4162051743B64D0040FB98 /* CoreBluetooth.framework in Frameworks */,
 				6C4161B91743B5DF0040FB98 /* UIKit.framework in Frameworks */,
 				6C4161BB1743B5DF0040FB98 /* Foundation.framework in Frameworks */,
@@ -104,6 +107,7 @@
 		6C4161AC1743B5DF0040FB98 = {
 			isa = PBXGroup;
 			children = (
+				6C93BC411745714F0040F66B /* CoreLocation.framework */,
 				6C4161BE1743B5DF0040FB98 /* GTurns */,
 				6C4161E51743B5DF0040FB98 /* GTurnsTests */,
 				6C4161B71743B5DF0040FB98 /* Frameworks */,

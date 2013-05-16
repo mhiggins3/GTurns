@@ -26,14 +26,17 @@
 
     [self.discoveredPeripherals removeObject:peripheral];
     if(![self.managedPeripherals containsObject:peripheral]){
-        NSLog(@"Adding a peripheral to manage");
         [self.managedPeripherals addObject:peripheral];
         [self.userDefaults setObject:self.managedPeripherals forKey:MANAGED_PERIPHERALS_KEY];
         if(!peripheral.isConnected){
             self.currentPeripheral = peripheral;
             [self.centralManager connectPeripheral:peripheral options:nil];
         } else {
-            [self activateAccelerometer:peripheral];
+            for(CBService *service in peripheral.services){
+                if([service.UUID isEqual:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]){
+                    [peripheral discoverCharacteristics:nil forService:service];
+                }
+            }
         }
     }
 
@@ -56,7 +59,7 @@
 -(void)configureAccelerometer:(CBPeripheral *) peripheral
 {
     
-    //TODO this should come from user defaults
+    //TODO this should come from user defaults ?
     NSInteger period = 300;
     uint8_t periodData = (uint8_t)(period / 10);
     
@@ -88,9 +91,9 @@
 
 -(void)startScan{
     
-    
-    //We need to do a scan for peripheral with nil services list because the sensor tag does not advertise
-    //its services. This will force the tag to send us back everything its knows.
+    //We need to do a scan for peripheral with nil services list
+    //because the sensor tag does not advertise its services. 
+    //This will force the tag to send us back everything its knows.
     [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
 
 }
@@ -139,7 +142,6 @@
  */
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
-
     switch(central.state){
         case CBCentralManagerStateUnknown:
             NSLog(@"CBCentralManagerStateUnknow: Ouch this is not good! ");
@@ -159,6 +161,7 @@
             break;
         case CBCentralManagerStatePoweredOn:
             NSLog(@"CBCentralManagerStatePoweredOn: Powered on.");
+            [self startScan];
             break;
     }
 }
@@ -209,7 +212,6 @@
  */
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    NSLog(@"Did discover peripheral ");
     peripheral.delegate = self;
 
     //This is a little strange but we have to save off the peripheral
@@ -218,9 +220,7 @@
 
     //We have to connect at this point because the services list for this peripheral
     //is empty before we connect. 
-    [central connectPeripheral:peripheral options:nil];
-
-   
+    [central connectPeripheral:peripheral options:nil];   
 }
 
 /*!
@@ -271,9 +271,7 @@
  */
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
-    self.activePeripheral = nil;
-    NSLog(@"didDisconnectPeripheral: UNIMPLIMENTED");
-    
+    self.activePeripheral = nil;    
 }
 
 #pragma mark - CBPeripheralDelegate
@@ -330,7 +328,6 @@
     
     //This is a peripheral we are already familiar with so move on to discover characteristics
     if([peripheral isEqual:self.activePeripheral] || [self.managedPeripherals containsObject:peripheral]){
-        NSLog(@"Back again so let's get notified");
         for(CBService *service in peripheral.services){
             if([service.UUID isEqual:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]){
                 [peripheral discoverCharacteristics:nil forService:service];
@@ -339,11 +336,14 @@
     } else {
         for(CBService *service in peripheral.services){
             if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
-                 [self.centralManager stopScan];
+                [self.centralManager stopScan];
                 [self addDiscoveredPeripheral:peripheral];
-            } else {
-                [self.centralManager cancelPeripheralConnection:peripheral];
-            }
+                //Not sure I like this but it will just connet
+                //any TI accleromerter I find not great if you have two in range
+                //Will need to revisit this need a way to save off an existing one
+                //and restore connectivity when we come back up 
+                [self addManagedPeripheral:peripheral];
+            } 
         }
     }
 }
@@ -425,11 +425,7 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    
     NSLog(@"Notification state updated %@ for with error: %@", characteristic.UUID, error);
-    
-
-    
 }
 
 /*!

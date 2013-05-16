@@ -18,7 +18,8 @@
 {
     self = [super initWithStyle:style];
     if (self) {
-            }
+        
+    }
     return self;
 }
 
@@ -27,12 +28,7 @@
     [super viewDidLoad];
     self.btManager = [BTManager sharedInstance];
     self.btManager.delegate = self;
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
 }
 - (void) viewWillAppear:(BOOL)animated
 {
@@ -47,12 +43,10 @@
 #pragma mark - BTManagerDelegate
 -(void)didDiscoverPerhipheral:(CBPeripheral *)peripheral
 {
-    NSLog(@"Found something reload table view please");
     [self.tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 -(void)didActivatePerhipheral:(CBPeripheral *)peripheral
 {
-    NSLog(@"Found something reload table view please");
     [self.tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 

@@ -8,12 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "BTManager.h"
+#import <CoreLocation/CoreLocation.h>
 
-@interface MainTabViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, BTManagerDelegate>
+@interface MainTabViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate, BTManagerDelegate>
 
 @property (strong) IBOutlet UILabel *xValueLable;
 @property (strong) IBOutlet UILabel *yValueLable;
 @property (strong) IBOutlet UILabel *zValueLable;
+@property (strong) IBOutlet UILabel *speedValueLable;
+
 -(void) didUpdateAccelerometerValues:(AccelerometerSensor *)accelerometer;
 
 @end
