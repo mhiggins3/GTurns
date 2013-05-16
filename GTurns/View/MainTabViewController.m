@@ -13,6 +13,7 @@
 @property (strong) BTManager *btManager;
 @property (strong) CLLocationManager *locationManager;
 @property float lastMph;
+
 @end
 
 @implementation MainTabViewController

@@ -60,7 +60,7 @@
 {
     
     //TODO this should come from user defaults ?
-    NSInteger period = 300;
+    NSInteger period = 100;
     uint8_t periodData = (uint8_t)(period / 10);
     
     [self writeData:[NSData dataWithBytes:&periodData length:1]

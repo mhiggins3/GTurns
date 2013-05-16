@@ -12,6 +12,4 @@
 
 @interface ConfigTabViewController : UITableViewController <BTManagerDelegate>
 
-//    @property (strong) IBOutlet UITableView *tableView;
-
 @end
