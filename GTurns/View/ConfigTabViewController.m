@@ -156,7 +156,7 @@
             if(self.btManager.managedPeripherals.count > 1){
                 return [NSString stringWithFormat:@"%d Active TI Sensor Tags", self.btManager.managedPeripherals.count];
             } else {
-                return [NSString stringWithFormat:@"%d Active TI Sensor Tags", self.btManager.managedPeripherals.count];
+                return [NSString stringWithFormat:@"%d Active TI Sensor Tag", self.btManager.managedPeripherals.count];
             }
         } else {
             return @"No Active TI Sensor Tags Found";
@@ -164,12 +164,12 @@
     } else {
         if(self.btManager.discoveredPeripherals.count > 0){
             if(self.btManager.discoveredPeripherals.count > 1){
-                return [NSString stringWithFormat:@"%d Discovered TI Sensor Tags \n Click To Add", self.btManager.discoveredPeripherals.count];
+                return [NSString stringWithFormat:@"%d New TI Sensor Tags Discovered\nClick To Add", self.btManager.discoveredPeripherals.count];
             } else {
-                return [NSString stringWithFormat:@"%d Discovered TI Sensor Tag \n Click To Add", self.btManager.discoveredPeripherals.count];
+                return [NSString stringWithFormat:@"%d New TI Sensor Tag Discovered\nClick To Add", self.btManager.discoveredPeripherals.count];
             }
         } else {
-            return @"No TI Sensor Tags Discovered";
+            return @"No New TI Sensor Tags Discovered";
         }
         
     }

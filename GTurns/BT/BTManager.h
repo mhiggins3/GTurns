@@ -9,16 +9,19 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "GTurnsConst.h"
+#import "Sensors.h"
+#import "AccelerometerSensor.h"
 
 @protocol BTManagerDelegate;
 
 
 @interface BTManager : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property (strong, retain) NSMutableOrderedSet *managedPeripherals;
-@property (strong, retain) CBPeripheral *activePeripheral;
-@property (strong, retain) NSMutableOrderedSet *discoveredPeripherals;
-@property (strong, retain) id<BTManagerDelegate> delegate;
+@property (strong, retain) NSMutableOrderedSet      *managedPeripherals;
+@property (strong, retain) CBPeripheral             *activePeripheral;
+@property (strong, retain) NSMutableOrderedSet      *discoveredPeripherals;
+@property (strong, retain) id<BTManagerDelegate>    delegate;
+@property (strong, retain) AccelerometerSensor      *accelerometer;
 
 + (id) sharedInstance;
 
@@ -69,4 +72,5 @@
 @optional
     -(void)didDiscoverPerhipheral:(CBPeripheral *)peripheral;
     -(void)didActivatePerhipheral:(CBPeripheral *)peripheral;
+    -(void)didUpdateAccelerometerValues:(AccelerometerSensor *)accelerometer;
 @end

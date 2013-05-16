@@ -11,9 +11,9 @@
 
 @interface BTManager () <CBCentralManagerDelegate,CBPeripheralDelegate>
     
-@property (strong, retain) CBCentralManager    *centralManager;
-@property (strong, retain) NSUserDefaults *userDefaults;
-@property (strong, retain) CBPeripheral *currentPeripheral;
+@property (strong, retain) CBCentralManager     *centralManager;
+@property (strong, retain) NSUserDefaults       *userDefaults;
+@property (strong, retain) CBPeripheral         *currentPeripheral;
 
 @property (nonatomic, assign, getter=isPendingInit) BOOL pendingInit;
 
@@ -23,22 +23,64 @@
 
 -(void)addManagedPeripheral:(CBPeripheral *)peripheral
 {
-    
+
+    [self.discoveredPeripherals removeObject:peripheral];
     if(![self.managedPeripherals containsObject:peripheral]){
         NSLog(@"Adding a peripheral to manage");
         [self.managedPeripherals addObject:peripheral];
-        [self.centralManager connectPeripheral:peripheral options:nil];
+        //TODO: Cant do this yet want to get some data first 
+        //[self.userDefaults setObject:self.managedPeripherals forKey:MANAGED_PERIPHERALS_KEY];
+        if(!peripheral.isConnected){
+            self.currentPeripheral = peripheral;
+            [self.centralManager connectPeripheral:peripheral options:nil];
+        } else {
+            [self activateAccelerometer:peripheral];
+        }
     }
-    [self.discoveredPeripherals removeObject:peripheral];
 
     
 }
 
+-(void)activateAccelerometer:(CBPeripheral *) peripheral
+{
+    [self configureAccelerometer:peripheral];
+    
+    [self setToBeNotififiedForServiceUUID:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]
+                     andCharacteristicUID:[CBUUID UUIDWithString:ACCELEROMETER_CHARACTERISTIC_DATA_STRING]
+                             onPeripheral:peripheral];
+    
+    if ([self.delegate respondsToSelector:@selector(didActivatePerhipheral:)]) {
+        [self.delegate didActivatePerhipheral:peripheral];
+    }
+
+}
+-(void)configureAccelerometer:(CBPeripheral *) peripheral
+{
+    
+    //TODO this should come from user defaults
+    NSInteger period = 300;
+    uint8_t periodData = (uint8_t)(period / 10);
+    
+    [self writeData:[NSData dataWithBytes:&periodData length:1]
+            toCharacteristic:[CBUUID UUIDWithString:ACCELEROMETER_CHARACTERISTIC_PERIOD_STRING]
+            forService:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]
+            onPeripheral:peripheral];
+
+    uint8_t data = 0x01;
+    [self writeData:[NSData dataWithBytes:&data length:1]
+            toCharacteristic:[CBUUID UUIDWithString:ACCELEROMETER_CHARACTERISTIC_CONFIG_STRING]
+            forService:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]
+            onPeripheral:peripheral];
+    
+    
+}
 -(void)addDiscoveredPeripheral:(CBPeripheral *) peripheral
 {
     if(![self.managedPeripherals containsObject:peripheral] && ![self.discoveredPeripherals containsObject:peripheral]){
         [self.discoveredPeripherals addObject:peripheral];
-        [self.delegate didDiscoverPerhipheral:peripheral];
+        if ([self.delegate respondsToSelector:@selector(didDiscoverPerhipheral:)]) {
+            [self.delegate didDiscoverPerhipheral:peripheral];
+        }
     }
 }
 -(BOOL)canManagePeripheral:(CBPeripheral *)peripheral{
@@ -48,10 +90,36 @@
 -(void)startScan{
     
     
-    //We need to do scan for peripheral with nil services list because the sensor tag does not advertise
+    //We need to do a scan for peripheral with nil services list because the sensor tag does not advertise
     //its services. This will force the tag to send us back everything its knows.
     [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
 
+}
+-(void) writeData:(NSData *) data toCharacteristic:(CBUUID *) characteristicUUID forService: (CBUUID *) serviceUUID onPeripheral:(CBPeripheral *)peripheral
+{
+    for ( CBService *service in peripheral.services ) {
+        if ([service.UUID isEqual:serviceUUID]) {
+            for ( CBCharacteristic *characteristic in service.characteristics ) {
+                if ([characteristic.UUID isEqual:characteristicUUID]) {
+                    [peripheral writeValue:data forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+                    
+                }
+            }
+        }
+    }
+}
+-(void) setToBeNotififiedForServiceUUID:(CBUUID *)serviceUUID andCharacteristicUID:(CBUUID *) characteristicUUID onPeripheral:(CBPeripheral *) peripheral
+{
+    for(CBService *service in self.activePeripheral.services){
+        if ([service.UUID isEqual: serviceUUID]) {
+            for (CBCharacteristic *characteristic in service.characteristics ) {
+                if([characteristic.UUID isEqual:characteristicUUID]){
+                    [peripheral setNotifyValue:YES forCharacteristic:characteristic];
+                }
+            }
+        }
+    }
+    
 }
 
 #pragma mark - CBCentralManagerDelegate
@@ -262,25 +330,20 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
 {
+    
     //This is a peripheral we are already familiar with so just set it as active and setup retreival stuff
     //TODO: setup retreival stuff.
-    if(peripheral == self.activePeripheral || [self.managedPeripherals containsObject:peripheral]){
+    if([peripheral isEqual:self.activePeripheral] || [self.managedPeripherals containsObject:peripheral]){
         NSLog(@"Back again so let's get notified");
-        self.activePeripheral = peripheral;
-        for(CBService *service in self.activePeripheral.services){
-            if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
-                for (CBCharacteristic *characteristic in service.characteristics ) {
-                        [peripheral setNotifyValue:YES forCharacteristic:characteristic];
-                }
-
+        for(CBService *service in peripheral.services){
+            if([service.UUID isEqual:[CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]){
+                [peripheral discoverCharacteristics:nil forService:service];
             }
         }
-        [self.delegate didActivatePerhipheral:peripheral];
     } else {
-        
         for(CBService *service in peripheral.services){
             if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
-                [self.centralManager stopScan];
+                 [self.centralManager stopScan];
                 [self addDiscoveredPeripheral:peripheral];
             } else {
                 [self.centralManager cancelPeripheralConnection:peripheral];
@@ -316,7 +379,9 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
 {
-    NSLog(@"didDiscoverCharacteristicsForService: UNIMPLIMENTED"); 
+    NSLog(@"didDiscoverCharacteristicsForService ");
+    self.activePeripheral = peripheral;
+    [self activateAccelerometer:peripheral];
 }
 
 /*!
@@ -330,8 +395,13 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    
-    NSLog(@"didUpdateValueForCharacteristic: UNIMPLIMENTED"); 
+    if([characteristic.UUID isEqual:[CBUUID UUIDWithString:ACCELEROMETER_CHARACTERISTIC_DATA_STRING]]){
+        [self.accelerometer updateCurrentData:characteristic.value];
+        if ([self.delegate respondsToSelector:@selector(didUpdateAccelerometerValues:)]) {
+            [self.delegate didUpdateAccelerometerValues:self.accelerometer];
+        }
+
+    }
 }
 
 /*!
@@ -345,7 +415,7 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    NSLog(@"didWriteValueForCharacteristic: UNIMPLIMENTED");    
+    NSLog(@"didWriteValueForCharacteristic: %@ with error %@", characteristic.UUID, error);
 }
 
 /*!
@@ -359,7 +429,11 @@
  */
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    NSLog(@"didUpdateNotificationStateForCharacteristic: UNIMPLIMENTED");  
+    
+    NSLog(@"Notification state updated %@ for with error: %@", characteristic.UUID, error);
+    
+
+    
 }
 
 /*!
@@ -424,11 +498,13 @@
         self.managedPeripherals = [[NSMutableOrderedSet alloc] init];
         self.discoveredPeripherals = [[NSMutableOrderedSet alloc]init];
         self.userDefaults = [NSUserDefaults standardUserDefaults];
-        
-        self.managedPeripherals = [self.userDefaults objectForKey:MANAGED_PERIPHERALS_KEY];
-        for(CBPeripheral *peripheral in self.managedPeripherals){
-            if(peripheral.isConnected){
-                [self.managedPeripherals addObject:peripheral];
+        self.accelerometer = [[AccelerometerSensor alloc] init];
+        if([self.userDefaults objectForKey:MANAGED_PERIPHERALS_KEY]){
+            self.managedPeripherals = [self.userDefaults objectForKey:MANAGED_PERIPHERALS_KEY];
+            for(CBPeripheral *peripheral in self.managedPeripherals){
+                if(peripheral.isConnected){
+                    [self.managedPeripherals addObject:peripheral];
+                }
             }
         }
 

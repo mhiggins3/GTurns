@@ -24,13 +24,11 @@
 		6C4161EA1743B5DF0040FB98 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6C4161E81743B5DF0040FB98 /* InfoPlist.strings */; };
 		6C4161ED1743B5DF0040FB98 /* GTurnsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161EC1743B5DF0040FB98 /* GTurnsTests.m */; };
 		6C4162001743B6380040FB98 /* BTManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161F81743B6380040FB98 /* BTManager.m */; };
-		6C4162011743B6380040FB98 /* BLEUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161FB1743B6380040FB98 /* BLEUtility.m */; };
-		6C4162021743B6380040FB98 /* Main Program.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161FD1743B6380040FB98 /* Main Program.m */; };
-		6C4162031743B6380040FB98 /* Sensors.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161FF1743B6380040FB98 /* Sensors.m */; };
 		6C4162051743B64D0040FB98 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4162041743B64D0040FB98 /* CoreBluetooth.framework */; };
 		6C4162081743B73C0040FB98 /* MainTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4162071743B73C0040FB98 /* MainTabViewController.m */; };
 		6C93BC3A174418690040F66B /* GTurnsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC39174418690040F66B /* GTurnsConst.m */; };
 		6C93BC3D174429F80040F66B /* ConfigTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3C174429F80040F66B /* ConfigTabViewController.m */; };
+		6C93BC40174549B50040F66B /* AccelerometerSensor.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3F174549B50040F66B /* AccelerometerSensor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,12 +65,6 @@
 		6C4161EC1743B5DF0040FB98 /* GTurnsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GTurnsTests.m; sourceTree = "<group>"; };
 		6C4161F71743B6380040FB98 /* BTManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTManager.h; sourceTree = "<group>"; };
 		6C4161F81743B6380040FB98 /* BTManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTManager.m; sourceTree = "<group>"; };
-		6C4161FA1743B6380040FB98 /* BLEUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLEUtility.h; sourceTree = "<group>"; };
-		6C4161FB1743B6380040FB98 /* BLEUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLEUtility.m; sourceTree = "<group>"; };
-		6C4161FC1743B6380040FB98 /* Main Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Main Program.h"; sourceTree = "<group>"; };
-		6C4161FD1743B6380040FB98 /* Main Program.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Main Program.m"; sourceTree = "<group>"; };
-		6C4161FE1743B6380040FB98 /* Sensors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sensors.h; sourceTree = "<group>"; };
-		6C4161FF1743B6380040FB98 /* Sensors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sensors.m; sourceTree = "<group>"; };
 		6C4162041743B64D0040FB98 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		6C4162061743B73C0040FB98 /* MainTabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainTabViewController.h; path = View/MainTabViewController.h; sourceTree = "<group>"; };
 		6C4162071743B73C0040FB98 /* MainTabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainTabViewController.m; path = View/MainTabViewController.m; sourceTree = "<group>"; };
@@ -80,6 +72,8 @@
 		6C93BC39174418690040F66B /* GTurnsConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTurnsConst.m; sourceTree = "<group>"; };
 		6C93BC3B174429F80040F66B /* ConfigTabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigTabViewController.h; path = View/ConfigTabViewController.h; sourceTree = "<group>"; };
 		6C93BC3C174429F80040F66B /* ConfigTabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ConfigTabViewController.m; path = View/ConfigTabViewController.m; sourceTree = "<group>"; };
+		6C93BC3E174549B50040F66B /* AccelerometerSensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerSensor.h; sourceTree = "<group>"; };
+		6C93BC3F174549B50040F66B /* AccelerometerSensor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccelerometerSensor.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,12 +192,8 @@
 		6C4161F91743B6380040FB98 /* TI */ = {
 			isa = PBXGroup;
 			children = (
-				6C4161FA1743B6380040FB98 /* BLEUtility.h */,
-				6C4161FB1743B6380040FB98 /* BLEUtility.m */,
-				6C4161FC1743B6380040FB98 /* Main Program.h */,
-				6C4161FD1743B6380040FB98 /* Main Program.m */,
-				6C4161FE1743B6380040FB98 /* Sensors.h */,
-				6C4161FF1743B6380040FB98 /* Sensors.m */,
+				6C93BC3E174549B50040F66B /* AccelerometerSensor.h */,
+				6C93BC3F174549B50040F66B /* AccelerometerSensor.m */,
 			);
 			path = TI;
 			sourceTree = "<group>";
@@ -335,12 +325,10 @@
 				6C4161C51743B5DF0040FB98 /* main.m in Sources */,
 				6C4161C91743B5DF0040FB98 /* AppDelegate.m in Sources */,
 				6C4162001743B6380040FB98 /* BTManager.m in Sources */,
-				6C4162011743B6380040FB98 /* BLEUtility.m in Sources */,
-				6C4162021743B6380040FB98 /* Main Program.m in Sources */,
-				6C4162031743B6380040FB98 /* Sensors.m in Sources */,
 				6C4162081743B73C0040FB98 /* MainTabViewController.m in Sources */,
 				6C93BC3A174418690040F66B /* GTurnsConst.m in Sources */,
 				6C93BC3D174429F80040F66B /* ConfigTabViewController.m in Sources */,
+				6C93BC40174549B50040F66B /* AccelerometerSensor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
