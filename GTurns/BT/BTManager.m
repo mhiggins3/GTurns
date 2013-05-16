@@ -28,8 +28,7 @@
     if(![self.managedPeripherals containsObject:peripheral]){
         NSLog(@"Adding a peripheral to manage");
         [self.managedPeripherals addObject:peripheral];
-        //TODO: Cant do this yet want to get some data first 
-        //[self.userDefaults setObject:self.managedPeripherals forKey:MANAGED_PERIPHERALS_KEY];
+        [self.userDefaults setObject:self.managedPeripherals forKey:MANAGED_PERIPHERALS_KEY];
         if(!peripheral.isConnected){
             self.currentPeripheral = peripheral;
             [self.centralManager connectPeripheral:peripheral options:nil];
@@ -159,8 +158,7 @@
             self.activePeripheral = nil;
             break;
         case CBCentralManagerStatePoweredOn:
-            NSLog(@"CBCentralManagerStatePoweredOn: Powered on going to discover some nice peripherals now. ");
-            [self startScan];
+            NSLog(@"CBCentralManagerStatePoweredOn: Powered on.");
             break;
     }
 }
@@ -238,7 +236,6 @@
 {
         //Now we are connected we just discover all services
         //we should prob provide a list of uuids we are interested in
-        //TODO: add a list of uuids we are interested in.
         [peripheral discoverServices:nil];
     
 }
@@ -331,8 +328,7 @@
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
 {
     
-    //This is a peripheral we are already familiar with so just set it as active and setup retreival stuff
-    //TODO: setup retreival stuff.
+    //This is a peripheral we are already familiar with so move on to discover characteristics
     if([peripheral isEqual:self.activePeripheral] || [self.managedPeripherals containsObject:peripheral]){
         NSLog(@"Back again so let's get notified");
         for(CBService *service in peripheral.services){
@@ -503,8 +499,9 @@
             self.managedPeripherals = [self.userDefaults objectForKey:MANAGED_PERIPHERALS_KEY];
             for(CBPeripheral *peripheral in self.managedPeripherals){
                 if(peripheral.isConnected){
-                    [self.managedPeripherals addObject:peripheral];
+                    self.activePeripheral=peripheral;
                 }
+                [self.centralManager connectPeripheral:peripheral options:nil];
             }
         }
 

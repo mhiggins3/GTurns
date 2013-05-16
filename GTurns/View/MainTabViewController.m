@@ -29,17 +29,13 @@
     [super viewDidLoad];
     self.btManager = [BTManager sharedInstance];
     self.btManager.delegate = self;
-	// Do any additional setup after loading the view.
+    
 }
+
 - (void)viewWillAppear:(BOOL)animated
 {
     self.btManager = [BTManager sharedInstance];
     self.btManager.delegate = self;
-}
-- (IBAction)startButtonPressed:(id)sender
-{
-    NSLog(@"StartScanButtonPressed !");
-    [self.btManager startScan];
 }
 
 -(void)didUpdateAccelerometerValues:(AccelerometerSensor *)accelerometer

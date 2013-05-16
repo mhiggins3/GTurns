@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "GTurnsConst.h"
-#import "Sensors.h"
 #import "AccelerometerSensor.h"
 
 @protocol BTManagerDelegate;
