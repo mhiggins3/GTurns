@@ -85,9 +85,6 @@
         }
     }
 }
--(BOOL)canManagePeripheral:(CBPeripheral *)peripheral{
-    return NO;
-}
 
 -(void)startScan{
     
