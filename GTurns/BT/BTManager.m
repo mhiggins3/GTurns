@@ -8,20 +8,12 @@
 
 #import "BTManager.h"
 
-// Accelerometer Const                                @"F0000000-0451-4000-B000-000000001800";
-NSString *GATT_SERVICE_UUID_STRING =                  @"1804";
-NSString *ACCELEROMETER_SERVICE_UUID_STRING =         @"F000AA10-0451-4000-B000-000000000000";
-NSString *ACCELEROMETER_CHARACTERISTIC_ONE_STRING =   @"F000AA12-0451-4000-B000-000000000000";
-NSString *ACCELEROMETER_CHARACTERISTIC_TWO_STRING =   @"F000AA13-0451-4000-B000-000000000000";
-NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-000000000000";
-
 
 @interface BTManager () <CBCentralManagerDelegate,CBPeripheralDelegate>
     
 @property (strong, retain) CBCentralManager    *centralManager;
-@property (strong, retain) NSMutableArray *managedPeripherals;
-@property (strong, retain) NSMutableArray *activePeripherals;
-@property (strong, retain) NSMutableArray *discoveredPeripherals;
+@property (strong, retain) NSUserDefaults *userDefaults;
+@property (strong, retain) CBPeripheral *currentPeripheral;
 
 @property (nonatomic, assign, getter=isPendingInit) BOOL pendingInit;
 
@@ -29,28 +21,35 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
 
 @implementation BTManager
 
--(void)addDiscoveredPeripheral:(CBPeripheral *)peripheral
+-(void)addManagedPeripheral:(CBPeripheral *)peripheral
 {
-    if(![self.discoveredPeripherals containsObject:peripheral]){
-        [self.discoveredPeripherals addObject:peripheral];
-    }
     
     if(![self.managedPeripherals containsObject:peripheral]){
-            [self.managedPeripherals addObject:peripheral];
+        NSLog(@"Adding a peripheral to manage");
+        [self.managedPeripherals addObject:peripheral];
+        [self.centralManager connectPeripheral:peripheral options:nil];
     }
+    [self.discoveredPeripherals removeObject:peripheral];
+
     
 }
 
+-(void)addDiscoveredPeripheral:(CBPeripheral *) peripheral
+{
+    if(![self.managedPeripherals containsObject:peripheral] && ![self.discoveredPeripherals containsObject:peripheral]){
+        [self.discoveredPeripherals addObject:peripheral];
+        [self.delegate didDiscoverPerhipheral:peripheral];
+    }
+}
 -(BOOL)canManagePeripheral:(CBPeripheral *)peripheral{
     return NO;
 }
 
 -(void)startScan{
     
-    /* 
-     We need to do this since the sensor tag does not advertise
-     its services. This will force the tag to send us back everything its knows.
-    */
+    
+    //We need to do scan for peripheral with nil services list because the sensor tag does not advertise
+    //its services. This will force the tag to send us back everything its knows.
     [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
 
 }
@@ -89,7 +88,7 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
             break;
         case CBCentralManagerStatePoweredOff:
             NSLog(@"CBCentralManagerStatePoweredOff: Device off killing activePeripheral list. ");
-            [self.activePeripherals removeAllObjects];
+            self.activePeripheral = nil;
             break;
         case CBCentralManagerStatePoweredOn:
             NSLog(@"CBCentralManagerStatePoweredOn: Powered on going to discover some nice peripherals now. ");
@@ -144,25 +143,18 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
  */
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
+    NSLog(@"Did discover peripheral ");
+    peripheral.delegate = self;
 
-    [self.discoveredPeripherals addObject:peripheral];
+    //This is a little strange but we have to save off the peripheral
+    //before we connect or it will get dealloced before we connect.
+    self.currentPeripheral = peripheral;
 
-    if(!peripheral.isConnected && [peripheral.name isEqualToString:@"TI BLE Sensor Tag"]){
-        peripheral.delegate = self;
-        [central connectPeripheral:peripheral options:nil];
-    }
-    
-   /*
-    [peripheral discoverServices:nil];
-    for(CBService *service in peripheral.services){
-        NSLog(@" UUID %@ " , service.UUID);
-        if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
-            NSLog(@"Found an our accelerometer! ");
-            [central connectPeripheral:peripheral options:nil];
-                
-        }
-    }
-    */
+    //We have to connect at this point because the services list for this peripheral
+    //is empty before we connect. 
+    [central connectPeripheral:peripheral options:nil];
+
+   
 }
 
 /*!
@@ -176,9 +168,11 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
  */
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
-    [self addDiscoveredPeripheral: peripheral];
-    [peripheral discoverServices:nil];
-
+        //Now we are connected we just discover all services
+        //we should prob provide a list of uuids we are interested in
+        //TODO: add a list of uuids we are interested in.
+        [peripheral discoverServices:nil];
+    
 }
 
 /*!
@@ -212,6 +206,7 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
  */
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
+    self.activePeripheral = nil;
     NSLog(@"didDisconnectPeripheral: UNIMPLIMENTED");
     
 }
@@ -267,12 +262,31 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
  */
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
 {
-    NSLog(@"Sevices for: %@", peripheral.name);
-    for (CBService *service in peripheral.services) {
-       
-        NSLog(@"Service UUID: %@, Service description: %@", service.UUID, service.description);
-    }
+    //This is a peripheral we are already familiar with so just set it as active and setup retreival stuff
+    //TODO: setup retreival stuff.
+    if(peripheral == self.activePeripheral || [self.managedPeripherals containsObject:peripheral]){
+        NSLog(@"Back again so let's get notified");
+        self.activePeripheral = peripheral;
+        for(CBService *service in self.activePeripheral.services){
+            if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
+                for (CBCharacteristic *characteristic in service.characteristics ) {
+                        [peripheral setNotifyValue:YES forCharacteristic:characteristic];
+                }
 
+            }
+        }
+        [self.delegate didActivatePerhipheral:peripheral];
+    } else {
+        
+        for(CBService *service in peripheral.services){
+            if ([service.UUID isEqual: [CBUUID UUIDWithString:ACCELEROMETER_SERVICE_UUID_STRING]]) {
+                [self.centralManager stopScan];
+                [self addDiscoveredPeripheral:peripheral];
+            } else {
+                [self.centralManager cancelPeripheralConnection:peripheral];
+            }
+        }
+    }
 }
 
 /*!
@@ -316,6 +330,7 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
  */
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
+    
     NSLog(@"didUpdateValueForCharacteristic: UNIMPLIMENTED"); 
 }
 
@@ -406,10 +421,17 @@ NSString *ACCELEROMETER_CHARACTERISTIC_TREE_STRING =  @"F000AA11-0451-4000-B000-
     if (self) {
         self.pendingInit = YES;
         self.centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
-        self.managedPeripherals = [[NSMutableArray alloc] init];
-        self.discoveredPeripherals = [[NSMutableArray alloc]init];
-        self.activePeripherals = [[NSMutableArray alloc]init];
+        self.managedPeripherals = [[NSMutableOrderedSet alloc] init];
+        self.discoveredPeripherals = [[NSMutableOrderedSet alloc]init];
+        self.userDefaults = [NSUserDefaults standardUserDefaults];
         
+        self.managedPeripherals = [self.userDefaults objectForKey:MANAGED_PERIPHERALS_KEY];
+        for(CBPeripheral *peripheral in self.managedPeripherals){
+            if(peripheral.isConnected){
+                [self.managedPeripherals addObject:peripheral];
+            }
+        }
+
     }
     return self;
 }

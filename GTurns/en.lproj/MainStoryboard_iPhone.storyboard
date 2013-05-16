@@ -4,22 +4,53 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
     <scenes>
-        <!--View Controller - Item 2-->
+        <!--ConfigController-->
         <scene sceneID="SCV-cZ-r0J">
             <objects>
-                <viewController id="YB5-8Q-fsN" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="rBa-t2-d7S">
+                <viewController id="YB5-8Q-fsN" userLabel="ConfigController" customClass="ConfigTabViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" indicatorStyle="white" dataMode="prototypes" style="grouped" separatorStyle="singleLineEtched" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="aLP-25-nLC">
                         <rect key="frame" x="0.0" y="20" width="320" height="499"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Item 2" id="S7L-Yb-0Qp"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" indentationWidth="10" editingAccessoryType="checkmark" textLabel="hoS-5M-pK2" detailTextLabel="SID-US-YTu" style="IBUITableViewCellStyleSubtitle" id="LDQ-8F-q2W">
+                                <rect key="frame" x="0.0" y="46" width="320" height="46"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="10" y="1" width="300" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="hoS-5M-pK2">
+                                            <rect key="frame" x="10" y="2" width="38" height="22"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        </label>
+                                        <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="SID-US-YTu">
+                                            <rect key="frame" x="10" y="24" width="47" height="18"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" red="0.50196078431372548" green="0.50196078431372548" blue="0.50196078431372548" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        </label>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="YB5-8Q-fsN" id="EZc-eA-CD9"/>
+                            <outlet property="delegate" destination="YB5-8Q-fsN" id="Aa7-iA-6wR"/>
+                        </connections>
+                    </tableView>
+                    <tabBarItem key="tabBarItem" systemItem="more" id="S7L-Yb-0Qp"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PSW-UE-JIm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="321" y="125"/>
         </scene>
-        <!--Main Tab View Controller - Item 1-->
+        <!--Main Tab View Controller-->
         <scene sceneID="Edc-1P-M5Q">
             <objects>
                 <viewController id="GPr-sl-FcM" customClass="MainTabViewController" sceneMemberID="viewController">
@@ -47,7 +78,7 @@
                             <constraint firstItem="jpP-UG-W2X" firstAttribute="top" secondItem="17C-SG-ugP" secondAttribute="top" constant="211" id="zhC-yq-gpC"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item 1" id="weD-ry-DZV"/>
+                    <tabBarItem key="tabBarItem" systemItem="favorites" id="weD-ry-DZV"/>
                     <connections>
                         <outlet property="startButton" destination="jpP-UG-W2X" id="NEB-tm-HQo"/>
                     </connections>
@@ -60,7 +91,7 @@
         <scene sceneID="QU6-s8-guw">
             <objects>
                 <tabBarController definesPresentationContext="YES" id="iBs-LW-iBy" sceneMemberID="viewController">
-                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" id="h2c-mM-SYP">
                         <rect key="frame" x="129" y="330" width="163" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -77,10 +108,14 @@
         </scene>
     </scenes>
     <classes>
+        <class className="ConfigTabViewController" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/ConfigTabViewController.h"/>
+        </class>
         <class className="MainTabViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MainTabViewController.h"/>
             <relationships>
                 <relationship kind="action" name="startButtonPressed:"/>
+                <relationship kind="outlet" name="deviceListTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="startButton" candidateClass="UIButton"/>
             </relationships>
         </class>

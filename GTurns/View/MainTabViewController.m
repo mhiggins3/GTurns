@@ -8,7 +8,7 @@
 
 #import "MainTabViewController.h"
 
-@interface MainTabViewController ()
+@interface MainTabViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (strong) BTManager *btManager;
 
@@ -20,7 +20,6 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
     }
     return self;
 }
@@ -29,6 +28,7 @@
 {
     [super viewDidLoad];
     self.btManager = [BTManager sharedInstance];
+
 	// Do any additional setup after loading the view.
 }
 
@@ -44,5 +44,6 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 
 @end

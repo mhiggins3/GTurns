@@ -1,0 +1,25 @@
+//
+//  GTurnsConst.h
+//  GTurns
+//
+//  Created by Matt Higgins on 5/15/13.
+//  Copyright (c) 2013 Matt Higgins. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+// Sensor Tag Const
+extern NSString *const GATT_SERVICE_UUID_STRING;
+
+// Accelerometer Const
+extern NSString *const ACCELEROMETER_SERVICE_UUID_STRING;
+extern NSString *const ACCELEROMETER_CHARACTERISTIC_ONE_STRING;
+extern NSString *const ACCELEROMETER_CHARACTERISTIC_TWO_STRING;
+extern NSString *const ACCELEROMETER_CHARACTERISTIC_TREE_STRING;
+
+// User Defaults Keys
+extern NSString *const MANAGED_PERIPHERALS_KEY;
+
+@interface GTurnsConst : NSObject
+
+@end

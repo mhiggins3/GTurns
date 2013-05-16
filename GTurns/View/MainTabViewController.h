@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "BTManager.h"
 
-@interface MainTabViewController : UIViewController
+@interface MainTabViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>
 
+@property (strong) IBOutlet UITableView *deviceListTableView;
 @property (strong) IBOutlet UIButton *startButton;
 -(IBAction)startButtonPressed:(id)sender;
 

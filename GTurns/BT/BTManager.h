@@ -8,14 +8,23 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "GTurnsConst.h"
 
-@interface BTManager : NSObject <CBCentralManagerDelegate>
+@protocol BTManagerDelegate;
+
+
+@interface BTManager : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
+
+@property (strong, retain) NSMutableOrderedSet *managedPeripherals;
+@property (strong, retain) CBPeripheral *activePeripheral;
+@property (strong, retain) NSMutableOrderedSet *discoveredPeripherals;
+@property (strong, retain) id<BTManagerDelegate> delegate;
 
 + (id) sharedInstance;
 
 /*!
  *
- * @method addDiscoveredPeripheral
+ * @method addManagedPeripheral
  *
  * @param peripheral    We are attempting to manage
  *
@@ -24,7 +33,7 @@
  to the list else it will be discarded.
  *
  */
--(void)addDiscoveredPeripheral:(CBPeripheral *)peripheral;
+-(void)addManagedPeripheral:(CBPeripheral *)peripheral;
 
 /*!
  *
@@ -53,4 +62,11 @@
  */
 -(void)startScan;
 
+@end
+
+@protocol BTManagerDelegate<NSObject>
+
+@optional
+    -(void)didDiscoverPerhipheral:(CBPeripheral *)peripheral;
+    -(void)didActivatePerhipheral:(CBPeripheral *)peripheral;
 @end
