@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "BTManager.h"
 #import <CoreLocation/CoreLocation.h>
+#import "CorePlot-CocoaTouch.h"
 
-@interface MainTabViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate, BTManagerDelegate>
+@interface MainTabViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate, BTManagerDelegate, CPTPlotDataSource>
 
 @property (strong) IBOutlet UILabel *xValueLable;
 @property (strong) IBOutlet UILabel *yValueLable;

@@ -12,6 +12,7 @@
 
 @property (strong) BTManager *btManager;
 @property (strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CPTGraphHostingView *hostView;
 @property float lastMph;
 
 @end
@@ -40,7 +41,10 @@
     self.lastMph = 0.0;
     
 }
-
+#pragma mark - Rotation
+-(BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft);
+}
 - (void)viewWillAppear:(BOOL)animated
 {
     self.btManager = [BTManager sharedInstance];
@@ -74,6 +78,22 @@
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     NSLog(@"didFailWithError: UNIMPLIMENTED %@", error);
+}
+#pragma mark - CPTPlotDataSource methods
+-(NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot {
+    return 0;
+}
+
+-(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index {
+    return 0;
+}
+
+-(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index {
+    return nil;
+}
+
+-(NSString *)legendTitleForPieChart:(CPTPieChart *)pieChart recordIndex:(NSUInteger)index {
+    return @"";
 }
 
 

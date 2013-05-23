@@ -30,6 +30,7 @@
     self.btManager.delegate = self;
     
 }
+
 - (void) viewWillAppear:(BOOL)animated
 {
     [self.btManager startScan];
@@ -39,7 +40,10 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+#pragma mark - Rotation
+-(BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeLeft);
+}
 #pragma mark - BTManagerDelegate
 -(void)didDiscoverPerhipheral:(CBPeripheral *)peripheral
 {
