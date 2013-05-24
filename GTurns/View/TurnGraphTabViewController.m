@@ -402,7 +402,7 @@ const NSInteger MAX_DATA_POINTS = 51;
                                                     length:CPTDecimalFromUnsignedInteger(MAX_DATA_POINTS - 1)];
     
     self.lateralGPlotCount++;
-    [self.lateralGPlotData addObject:[NSNumber numberWithFloat:yValue]];
+    [self.lateralGPlotData addObject:[NSNumber numberWithFloat:-yValue]];
     [self.lateralPlot insertDataAtIndex:self.lateralGPlotData.count - 1 numberOfRecords:1];
 
 }
