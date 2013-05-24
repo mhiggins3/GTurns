@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 #import "CorePlot-CocoaTouch.h"
+#import "BTManager.h"
 
-@interface TurnGraphTabViewController : UIViewController <CPTPlotDataSource>
+@interface TurnGraphTabViewController : UIViewController <CPTPlotDataSource, CLLocationManagerDelegate, BTManagerDelegate>
 
 
 @end

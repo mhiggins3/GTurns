@@ -14,7 +14,7 @@ NSString *const SPEED_PLOT_INENTIFIER =             @"Current Speed";
 const NSInteger MAX_DATA_POINTS = 51;
 
 
-@interface TurnGraphTabViewController () <CPTPlotDataSource>
+@interface TurnGraphTabViewController () <CPTPlotDataSource,CLLocationManagerDelegate,BTManagerDelegate>
 
     @property (strong) NSMutableArray        *plotData;
 
@@ -42,6 +42,15 @@ const NSInteger MAX_DATA_POINTS = 51;
     @property (strong) CPTBarPlot       *accelerationPlot;
     @property (strong) CPTBarPlot       *speedPlot;
 
+    @property (strong) CLLocationManager *locationManager;
+    @property float lastMph;
+    @property float lastAccl;
+
+
+    @property (strong) BTManager *btManager;
+
+    @property NSInteger lateralGPlotCount;
+    @property NSMutableArray *lateralGPlotData;
 
 @end
 
@@ -59,13 +68,28 @@ const NSInteger MAX_DATA_POINTS = 51;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.plotData = [NSMutableArray arrayWithCapacity:MAX_DATA_POINTS];
     for(int i = 0; i < MAX_DATA_POINTS; i++){
         [self.plotData setObject:[NSNumber numberWithDouble:(1.0 - 0.25) * [[self.plotData lastObject] doubleValue] + 0.25 * rand() / (double)RAND_MAX] atIndexedSubscript:i];
     }
     [self initCharts];
-}
 
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    [self.locationManager startUpdatingLocation];
+    self.lastMph = 0.0;
+    
+    self.btManager = [BTManager sharedInstance];
+    self.btManager.delegate = self;
+
+    self.lateralGPlotCount = 0;
+    self.lateralGPlotData = [NSMutableArray arrayWithCapacity:MAX_DATA_POINTS];
+}
+- (void)viewWillAppear:(BOOL)animated
+{
+    self.btManager = [BTManager sharedInstance];
+    self.btManager.delegate = self;
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -105,15 +129,15 @@ const NSInteger MAX_DATA_POINTS = 51;
     
     // Plot space
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.lateralView.hostedGraph.defaultPlotSpace;
-    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(51 - 1)];
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(1)];
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(-3.0) length:CPTDecimalFromUnsignedInteger(6)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(-5.0) length:CPTDecimalFromUnsignedInteger(55)];
 
 }
 
 -(void) drawAccelerationPlot
 {
     
-    self.accelerationPlot = [[CPTBarPlot alloc] init];
+    self.accelerationPlot = [CPTBarPlot tubularBarPlotWithColor: [CPTColor greenColor] horizontalBars:NO];
     self.accelerationPlot.identifier     = ACCELERATION_PLOT_INENTIFIER;
     self.accelerationPlot.cachePrecision = CPTPlotCachePrecisionDouble;
     
@@ -122,25 +146,31 @@ const NSInteger MAX_DATA_POINTS = 51;
     
     // Plot space
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.accelerationView.hostedGraph.defaultPlotSpace;
-    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(2)];
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(1)];
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0) length:CPTDecimalFromFloat(3.0)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation: CPTDecimalFromFloat(-3.0) length: CPTDecimalFromFloat(6.0)];
     
 }
 
 -(void) drawSpeedPlot
 {
     
-    self.speedPlot = [[CPTBarPlot alloc] init];
+    self.speedPlot = [CPTBarPlot tubularBarPlotWithColor: [CPTColor greenColor] horizontalBars:NO];
     self.speedPlot.identifier     = SPEED_PLOT_INENTIFIER;
     self.speedPlot.cachePrecision = CPTPlotCachePrecisionDouble;
+    
+    CPTMutableLineStyle *lineStyle = [self.lateralPlot.dataLineStyle mutableCopy];
+    lineStyle.lineWidth              = 3.0;
+    lineStyle.lineColor              = [CPTColor greenColor];
+
+
     
     self.speedPlot.dataSource = self;
     [self.speedView.hostedGraph addPlot:self.speedPlot];
     
     // Plot space
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.speedView.hostedGraph.defaultPlotSpace;
-    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(2)];
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(1)];
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0) length:CPTDecimalFromFloat(3)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(-10.0) length:CPTDecimalFromFloat(220)];
     
 }
 
@@ -160,32 +190,33 @@ const NSInteger MAX_DATA_POINTS = 51;
     self.accelerationGraph = [[CPTXYGraph alloc] initWithFrame:self.accelerationView.bounds];
     self.accelerationView.hostedGraph = self.accelerationGraph;
     self.accelerationGraph.title = ACCELERATION_PLOT_INENTIFIER;
-    [self applyGraphDefaults:self.accelerationGraph];
+    CPTMutableTextStyle *titleStyle =  [CPTMutableTextStyle textStyle];
+    titleStyle.fontSize = 12.0f;
+    titleStyle.color = [CPTColor whiteColor];
+
     
+    self.accelerationGraph.titleTextStyle =  titleStyle;
+    //[self applyGraphDefaults:self.accelerationGraph];
+   
+    [self.accelerationGraph applyTheme:[CPTTheme themeNamed:@"Dark Gradients"]];
+    self.accelerationGraph.paddingLeft = 5.f;
+    self.accelerationGraph.paddingTop = 5.0f;
+    self.accelerationGraph.paddingRight = 5.0f;
+    self.accelerationGraph.paddingBottom = 30.0f;
+
     // Grid line styles
     CPTMutableLineStyle *majorGridLineStyle = [CPTMutableLineStyle lineStyle];
-    majorGridLineStyle.lineWidth = 0.75;
+    majorGridLineStyle.lineWidth = 0.80;
     majorGridLineStyle.lineColor = [[CPTColor colorWithGenericGray:0.2] colorWithAlphaComponent:0.75];
     
     CPTMutableLineStyle *minorGridLineStyle = [CPTMutableLineStyle lineStyle];
     minorGridLineStyle.lineWidth = 0.25;
     minorGridLineStyle.lineColor = [[CPTColor whiteColor] colorWithAlphaComponent:0.1];
     
-    // Axes
-    // X axis
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)self.accelerationGraph.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
+    x.hidden = YES;
     
-    x.labelingPolicy              = CPTAxisLabelingPolicyAutomatic;
-    x.orthogonalCoordinateDecimal = CPTDecimalFromUnsignedInteger(0);
-    x.majorGridLineStyle          = majorGridLineStyle;
-    x.minorGridLineStyle          = minorGridLineStyle;
-    x.minorTicksPerInterval       = 1;
-    x.title                       = @"X Axis";
-    x.titleOffset                 = 35.0;
-    NSNumberFormatter *labelFormatter = [[NSNumberFormatter alloc] init];
-    labelFormatter.numberStyle = NSNumberFormatterNoStyle;
-    x.labelFormatter           = labelFormatter;
     
     // Y axis
     CPTXYAxis *y = axisSet.yAxis;
@@ -193,12 +224,12 @@ const NSInteger MAX_DATA_POINTS = 51;
     y.orthogonalCoordinateDecimal = CPTDecimalFromUnsignedInteger(0);
     y.majorGridLineStyle          = majorGridLineStyle;
     y.minorGridLineStyle          = minorGridLineStyle;
-    y.minorTicksPerInterval       = 1;
+    y.minorTicksPerInterval       = 10;
     y.labelOffset                 = 5.0;
-    y.title                       = @"Y Axis";
     y.titleOffset                 = 30.0;
-    y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:0.0];
+    y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:125.0];
     
+    y.visibleAxisRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(-2.0) length:CPTDecimalFromFloat(4.0)];
 
     
 }
@@ -209,7 +240,45 @@ const NSInteger MAX_DATA_POINTS = 51;
     self.speedGraph = [[CPTXYGraph alloc] initWithFrame:self.speedView.bounds];
     self.speedView.hostedGraph = self.speedGraph;
     self.speedGraph.title = SPEED_PLOT_INENTIFIER;
-    [self applyGraphDefaults:self.speedGraph];
+    //[self applyGraphDefaults:self.speedGraph];
+    CPTMutableTextStyle *titleStyle =  [CPTMutableTextStyle textStyle];
+    titleStyle.fontSize = 12.0f;
+    titleStyle.color = [CPTColor whiteColor];
+    
+    
+    self.speedGraph.titleTextStyle =  titleStyle;
+
+    [self.speedGraph applyTheme:[CPTTheme themeNamed:@"Dark Gradients"]];
+    self.speedGraph.paddingLeft = 5.f;
+    self.speedGraph.paddingTop = 5.0f;
+    self.speedGraph.paddingRight = 5.0f;
+    self.speedGraph.paddingBottom = 30.0f;
+    
+    // Grid line styles
+    CPTMutableLineStyle *majorGridLineStyle = [CPTMutableLineStyle lineStyle];
+    majorGridLineStyle.lineWidth = 0.8;
+    majorGridLineStyle.lineColor = [[CPTColor colorWithGenericGray:0.2] colorWithAlphaComponent:0.75];
+    
+    CPTMutableLineStyle *minorGridLineStyle = [CPTMutableLineStyle lineStyle];
+    minorGridLineStyle.lineWidth = 0.25;
+    minorGridLineStyle.lineColor = [[CPTColor whiteColor] colorWithAlphaComponent:0.1];
+    
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)self.speedGraph.axisSet;
+    CPTXYAxis *x = axisSet.xAxis;
+    x.hidden = YES;
+    
+    // Y axis
+    CPTXYAxis *y = axisSet.yAxis;
+    y.labelingPolicy              = CPTAxisLabelingPolicyAutomatic;
+    y.orthogonalCoordinateDecimal = CPTDecimalFromUnsignedInteger(0);
+    y.majorGridLineStyle          = majorGridLineStyle;
+    y.minorGridLineStyle          = minorGridLineStyle;
+    y.minorTicksPerInterval       = 10;
+    y.labelOffset                 = 5.0;
+    y.titleOffset                 = 30.0;
+    y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:125.0];
+    y.visibleAxisRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(1) length:CPTDecimalFromFloat(180)];
+
     
 }
 
@@ -262,6 +331,10 @@ const NSInteger MAX_DATA_POINTS = 51;
     graph.paddingRight = 5.0f;
     graph.paddingBottom = 30.0f;
     
+    CPTMutableTextStyle *titleStyle =  [CPTMutableTextStyle textStyle];
+    titleStyle.fontSize = 12.0f;
+    titleStyle.color = [CPTColor whiteColor];
+    graph.titleTextStyle = titleStyle;
     
     // Grid line styles
     CPTMutableLineStyle *majorGridLineStyle = [CPTMutableLineStyle lineStyle];
@@ -296,17 +369,69 @@ const NSInteger MAX_DATA_POINTS = 51;
     y.minorGridLineStyle          = minorGridLineStyle;
     y.minorTicksPerInterval       = 3;
     y.labelOffset                 = 5.0;
-    y.title                       = @"Y Axis";
     y.titleOffset                 = 30.0;
-    y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:0.0];
+    y.title = @"";
+    y.axisConstraints             = [CPTConstraints constraintWithLowerOffset:135.0];
+    y.visibleAxisRange            = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0) length:CPTDecimalFromFloat(50)];
+    y.paddingBottom = 20.0;
 
+
+}
+-(void) updateSpeedChart
+{
+    //[self.speedPlot insertDataAtIndex:0 numberOfRecords:1];
+    [self.speedPlot reloadData];
+    
+}
+-(void) updateAccelerationChart:(float ) zValue
+{
+    self.lastAccl = zValue;
+    [self.accelerationPlot reloadData];
+
+}
+-(void) updateLateralChart:(float) yValue
+{
+    if ( self.lateralGPlotData.count >= MAX_DATA_POINTS ) {
+        [self.lateralGPlotData removeObjectAtIndex:0];
+        [self.lateralPlot deleteDataInIndexRange:NSMakeRange(0, 1)];
+    }
+    
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.lateralGraph.defaultPlotSpace;
+    NSUInteger location       = (self.lateralGPlotCount >= MAX_DATA_POINTS ? self.lateralGPlotCount - MAX_DATA_POINTS + 1 : 0);
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(location)
+                                                    length:CPTDecimalFromUnsignedInteger(MAX_DATA_POINTS - 1)];
+    
+    self.lateralGPlotCount++;
+    [self.lateralGPlotData addObject:[NSNumber numberWithFloat:yValue]];
+    [self.lateralPlot insertDataAtIndex:self.lateralGPlotData.count - 1 numberOfRecords:1];
+
+}
+
+#pragma mark - CLLocationManagerDelegate
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
+{
+    CLLocation *currentLocation = [locations objectAtIndex:locations.count - 1];
+    if(currentLocation.speed > 0){
+        self.lastMph = (currentLocation.speed * 3.6)/ 1.609344;
+    }
+    [self updateSpeedChart];
+    
+}
+-(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    NSLog(@"didChangeAuthorizationStatus: UNIMPLIMENTED");
+}
+-(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    NSLog(@"didFailWithError: UNIMPLIMENTED %@", error);
 }
 
 #pragma mark - CPTPlotDataSource methods
 -(NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot {
      
     if([plot.identifier isEqual:LATERAL_PLOT_INENTIFIER]){
-        return [self.plotData count];
+        //return [self.plotData count];
+        return [self.lateralGPlotData count];
     } else if([plot.identifier isEqual:ACCELERATION_PLOT_INENTIFIER]){
         return 1;
     } else if([plot.identifier isEqual:SPEED_PLOT_INENTIFIER]){
@@ -324,11 +449,13 @@ const NSInteger MAX_DATA_POINTS = 51;
         switch ( fieldEnum ) {
             case CPTScatterPlotFieldX:
                 //num = [NSNumber numberWithUnsignedInteger:index + currentIndex - plotData.count];
-                num = [NSNumber numberWithUnsignedInteger:index];
+                num = [self.lateralGPlotData objectAtIndex:index];
                 break;
                 
             case CPTScatterPlotFieldY:
-                num = [self.plotData objectAtIndex:index];
+                
+                num = [NSNumber numberWithUnsignedInteger:index + self.lateralGPlotCount - self.lateralGPlotData.count];
+
                 break;
                 
             default:
@@ -341,7 +468,7 @@ const NSInteger MAX_DATA_POINTS = 51;
                 break;
                 
             case CPTScatterPlotFieldY:
-                num = [NSNumber numberWithInt:2.5];
+                num = [NSNumber numberWithFloat:self.lastAccl];
                 break;
                 
             default:
@@ -355,7 +482,7 @@ const NSInteger MAX_DATA_POINTS = 51;
                 break;
                 
             case CPTScatterPlotFieldY:
-                num = [NSNumber numberWithInt:50];
+                num = [NSNumber numberWithFloat:self.lastMph];
                 break;
                 
             default:
@@ -370,5 +497,11 @@ const NSInteger MAX_DATA_POINTS = 51;
 -(CPTLayer *)dataLabelForPlot:(CPTPlot *)plot recordIndex:(NSUInteger)index {
     return nil;
 }
+#pragma mark - BTManagerDelegate
+-(void)didUpdateAccelerometerValues:(AccelerometerSensor *)accelerometer
+{
+    [self updateAccelerationChart: accelerometer.zValue];
+    [self updateLateralChart: accelerometer.yValue];
 
+}
 @end
