@@ -26,6 +26,9 @@
 		6C4162001743B6380040FB98 /* BTManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4161F81743B6380040FB98 /* BTManager.m */; };
 		6C4162051743B64D0040FB98 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C4162041743B64D0040FB98 /* CoreBluetooth.framework */; };
 		6C4162081743B73C0040FB98 /* MainTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C4162071743B73C0040FB98 /* MainTabViewController.m */; };
+		6C60C9AD183E3C540003BCE5 /* glyphicons_041_charts.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C60C9AC183E3C540003BCE5 /* glyphicons_041_charts.png */; };
+		6C60C9AF183E3D3B0003BCE5 /* glyphicons_185_screenshot.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C60C9AE183E3D3B0003BCE5 /* glyphicons_185_screenshot.png */; };
+		6C60C9B1183E3D4F0003BCE5 /* glyphicons_136_cogwheel.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C60C9B0183E3D4F0003BCE5 /* glyphicons_136_cogwheel.png */; };
 		6C93BC3A174418690040F66B /* GTurnsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC39174418690040F66B /* GTurnsConst.m */; };
 		6C93BC3D174429F80040F66B /* ConfigTabViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3C174429F80040F66B /* ConfigTabViewController.m */; };
 		6C93BC40174549B50040F66B /* AccelerometerSensor.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C93BC3F174549B50040F66B /* AccelerometerSensor.m */; };
@@ -72,6 +75,9 @@
 		6C4162041743B64D0040FB98 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		6C4162061743B73C0040FB98 /* MainTabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainTabViewController.h; path = View/MainTabViewController.h; sourceTree = "<group>"; };
 		6C4162071743B73C0040FB98 /* MainTabViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainTabViewController.m; path = View/MainTabViewController.m; sourceTree = "<group>"; };
+		6C60C9AC183E3C540003BCE5 /* glyphicons_041_charts.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = glyphicons_041_charts.png; sourceTree = "<group>"; };
+		6C60C9AE183E3D3B0003BCE5 /* glyphicons_185_screenshot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = glyphicons_185_screenshot.png; sourceTree = "<group>"; };
+		6C60C9B0183E3D4F0003BCE5 /* glyphicons_136_cogwheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = glyphicons_136_cogwheel.png; sourceTree = "<group>"; };
 		6C93BC38174418690040F66B /* GTurnsConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTurnsConst.h; sourceTree = "<group>"; };
 		6C93BC39174418690040F66B /* GTurnsConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTurnsConst.m; sourceTree = "<group>"; };
 		6C93BC3B174429F80040F66B /* ConfigTabViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigTabViewController.h; path = View/ConfigTabViewController.h; sourceTree = "<group>"; };
@@ -241,6 +247,7 @@
 		6C4161BF1743B5DF0040FB98 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6C60C9AB183E3C540003BCE5 /* Images */,
 				6C4161C01743B5DF0040FB98 /* GTurns-Info.plist */,
 				6C4161C11743B5DF0040FB98 /* InfoPlist.strings */,
 				6C4161C41743B5DF0040FB98 /* main.m */,
@@ -303,6 +310,16 @@
 				6C93BC97174C3B7A0040F66B /* TurnGraphTabViewController.m */,
 			);
 			name = View;
+			sourceTree = "<group>";
+		};
+		6C60C9AB183E3C540003BCE5 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				6C60C9B0183E3D4F0003BCE5 /* glyphicons_136_cogwheel.png */,
+				6C60C9AE183E3D3B0003BCE5 /* glyphicons_185_screenshot.png */,
+				6C60C9AC183E3C540003BCE5 /* glyphicons_041_charts.png */,
+			);
+			path = Images;
 			sourceTree = "<group>";
 		};
 		6C93BC43174596DF0040F66B /* Lib */ = {
@@ -471,10 +488,13 @@
 			files = (
 				6C4161C31743B5DF0040FB98 /* InfoPlist.strings in Resources */,
 				6C4161CB1743B5DF0040FB98 /* Default.png in Resources */,
+				6C60C9AF183E3D3B0003BCE5 /* glyphicons_185_screenshot.png in Resources */,
+				6C60C9B1183E3D4F0003BCE5 /* glyphicons_136_cogwheel.png in Resources */,
 				6C4161CD1743B5DF0040FB98 /* Default@2x.png in Resources */,
 				6C4161CF1743B5DF0040FB98 /* Default-568h@2x.png in Resources */,
 				6C4161D21743B5DF0040FB98 /* MainStoryboard_iPhone.storyboard in Resources */,
 				6C4161D51743B5DF0040FB98 /* MainStoryboard_iPad.storyboard in Resources */,
+				6C60C9AD183E3C540003BCE5 /* glyphicons_041_charts.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

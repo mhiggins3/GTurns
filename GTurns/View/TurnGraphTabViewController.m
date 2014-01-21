@@ -38,6 +38,11 @@ const NSInteger MAX_DATA_POINTS = 51;
     @property (strong) CPTXYGraph   *accelerationGraph;
     @property (strong) CPTXYGraph   *speedGraph;
 
+    //Transition of speed graph to a label
+    @property (strong) UILabel *speedLabel;
+    @property (strong) UIButton *startStopButton;
+    @property (strong) UIButton *autoStartButton;
+
     @property (strong) CPTScatterPlot   *lateralPlot;
     @property (strong) CPTBarPlot       *accelerationPlot;
     @property (strong) CPTBarPlot       *speedPlot;
@@ -52,6 +57,9 @@ const NSInteger MAX_DATA_POINTS = 51;
     @property NSInteger lateralGPlotCount;
     @property NSMutableArray *lateralGPlotData;
 
+    //@property (strong) UIButton *startButton;
+    //@property (strong) UILabel  *currentSpeedLabel;
+
 @end
 
 @implementation TurnGraphTabViewController
@@ -60,7 +68,8 @@ const NSInteger MAX_DATA_POINTS = 51;
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        self.view.backgroundColor = [UIColor redColor];
+        
     }
     return self;
 }
@@ -84,11 +93,19 @@ const NSInteger MAX_DATA_POINTS = 51;
 
     self.lateralGPlotCount = 0;
     self.lateralGPlotData = [NSMutableArray arrayWithCapacity:MAX_DATA_POINTS];
+
 }
 - (void)viewWillAppear:(BOOL)animated
 {
     self.btManager = [BTManager sharedInstance];
     self.btManager.delegate = self;
+ 
+}
+- (void)viewDidAppear:(BOOL)animated
+{
+    //[self.autoStartButton addTarget:self action:@selector(startStopButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    //[self.startStopButton addTarget:self action:@selector(startStopButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+   
 }
 - (void)didReceiveMemoryWarning
 {
@@ -288,7 +305,8 @@ const NSInteger MAX_DATA_POINTS = 51;
     //TODO: Get Const for tab bar height .... 49
     //Get our bounds
     CGRect parentRect = self.view.bounds;
-
+    NSLog(@"%@", NSStringFromCGRect(self.view.frame));
+        NSLog(@"%@", NSStringFromCGRect(self.view.bounds));
     //Init lateralView
     self.lateralView = [[CPTGraphHostingView alloc] initWithFrame:CGRectMake(0,
                                                                                  0,
@@ -308,13 +326,56 @@ const NSInteger MAX_DATA_POINTS = 51;
     self.accelerationView.allowPinchScaling = NO;
     self.accelerationView.autoresizesSubviews = YES;
     self.accelerationView.backgroundColor = [UIColor blackColor];
+    
     [self.view addSubview:self.accelerationView];
+    
+    
+    self.speedLabel = [[UILabel alloc] initWithFrame:CGRectMake(parentRect.size.height * 0.75,
+                                                               0,
+                                                               parentRect.size.height/4,
+                                                               (parentRect.size.width - 49)/2)];
+/*
+    self.speedLabel.backgroundColor = [UIColor blackColor];
+    self.speedLabel.textColor = [CPTColor greenColor].uiColor;
+    self.speedLabel.textAlignment = NSTextAlignmentCenter;
+    self.speedLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:18.2];
+    [self.view addSubview:self.speedLabel];
+    NSLog(@"%@", NSStringFromCGRect(self.speedLabel.frame));
+   
+    
+    self.startStopButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    self.autoStartButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    
+    self.startStopButton.frame = CGRectMake(parentRect.size.height * 0.75,
+                                            ((parentRect.size.width - 49)/2),
+                                            parentRect.size.height/4,
+                                            (parentRect.size.width - 49) / 4);
+    
+    
+    NSLog(@"%@", NSStringFromCGRect(self.startStopButton.frame));
+    self.startStopButton.backgroundColor = [UIColor grayColor];
+    [self.startStopButton setTitle:@"Start / Stop" forState:UIControlStateNormal];
+    [self.view addSubview:self.startStopButton];
+    
+    
+    self.autoStartButton.frame = CGRectMake(parentRect.size.height * 0.75,
+                                                                      ((parentRect.size.width - 49)/2) + ((parentRect.size.width - 49)/4),
+                                                                      parentRect.size.height/4,
+                                                                      (parentRect.size.width - 49) / 4);
 
+    self.autoStartButton.backgroundColor = [UIColor grayColor];
+    [self.autoStartButton setTitle:@"Auto Start" forState:UIControlStateNormal];
+    self.autoStartButton.enabled = YES;
+    [self.view addSubview:self.autoStartButton];
+    */
     //Init speedView
+
     self.speedView = [[CPTGraphHostingView alloc] initWithFrame:CGRectMake(parentRect.size.height * 0.75,
                                                                                   0,
                                                                                   parentRect.size.height / 4,
                                                                                   parentRect.size.width - 49)];
+
+ 
     self.speedView.allowPinchScaling = NO;
     self.speedView.autoresizesSubviews = YES;
     self.speedView.backgroundColor = [UIColor blackColor];
@@ -381,7 +442,8 @@ const NSInteger MAX_DATA_POINTS = 51;
 {
     //[self.speedPlot insertDataAtIndex:0 numberOfRecords:1];
     [self.speedPlot reloadData];
-    
+    //self.speedLabel.text = [NSString stringWithFormat:@"%.2f MPH", self.lastMph];
+                            
 }
 -(void) updateAccelerationChart:(float ) zValue
 {
@@ -406,7 +468,9 @@ const NSInteger MAX_DATA_POINTS = 51;
     [self.lateralPlot insertDataAtIndex:self.lateralGPlotData.count - 1 numberOfRecords:1];
 
 }
-
+-(IBAction) startStopButtonPressed:(id)sender{
+    NSLog(@"Start stop pressed");
+}
 #pragma mark - CLLocationManagerDelegate
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {

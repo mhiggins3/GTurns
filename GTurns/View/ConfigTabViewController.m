@@ -33,7 +33,9 @@
 
 - (void) viewWillAppear:(BOOL)animated
 {
+    NSLog(@"About to start scan");
     [self.btManager startScan];
+    NSLog(@"scan started");
 }
 - (void)didReceiveMemoryWarning
 {
@@ -74,9 +76,10 @@
 {
     UITableViewCell *cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:[NSString stringWithFormat:@"cell-%d",indexPath.row]];
     
-    CBPeripheral *peripheral = [[CBPeripheral alloc]init];
+    CBPeripheral *peripheral;// = [[CBPeripheral alloc]init];
     if(indexPath.section == 0){
         if(self.btManager.managedPeripherals || !self.btManager.managedPeripherals.count){
+            NSLog(@"Row number : %d perferial count: %d", indexPath.row, self.btManager.managedPeripherals.count);
             peripheral = [self.btManager.managedPeripherals objectAtIndex:indexPath.row];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }

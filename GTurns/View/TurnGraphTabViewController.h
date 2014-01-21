@@ -13,5 +13,6 @@
 
 @interface TurnGraphTabViewController : UIViewController <CPTPlotDataSource, CLLocationManagerDelegate, BTManagerDelegate>
 
+-(IBAction) startStopButtonPressed:(id)sender;
 
 @end

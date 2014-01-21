@@ -27,7 +27,6 @@
     [self.discoveredPeripherals removeObject:peripheral];
     if(![self.managedPeripherals containsObject:peripheral]){
         [self.managedPeripherals addObject:peripheral];
-        [self.userDefaults setObject:self.managedPeripherals forKey:MANAGED_PERIPHERALS_KEY];
         if(!peripheral.isConnected){
             self.currentPeripheral = peripheral;
             [self.centralManager connectPeripheral:peripheral options:nil];
@@ -91,7 +90,7 @@
     //We need to do a scan for peripheral with nil services list
     //because the sensor tag does not advertise its services. 
     //This will force the tag to send us back everything its knows.
-    [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES}];
+    [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @NO}];
 
 }
 -(void) writeData:(NSData *) data toCharacteristic:(CBUUID *) characteristicUUID forService: (CBUUID *) serviceUUID onPeripheral:(CBPeripheral *)peripheral
@@ -209,15 +208,18 @@
  */
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    peripheral.delegate = self;
+       //We have to connect at this point because the services list for this peripheral
+    //is empty before we connect. 
+    [central connectPeripheral:peripheral options:nil];
+    self.currentPeripheral = peripheral;
+    self.currentPeripheral.delegate = self;
 
+    
     //This is a little strange but we have to save off the peripheral
     //before we connect or it will get dealloced before we connect.
-    self.currentPeripheral = peripheral;
 
-    //We have to connect at this point because the services list for this peripheral
-    //is empty before we connect. 
-    [central connectPeripheral:peripheral options:nil];   
+    
+
 }
 
 /*!
